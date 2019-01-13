@@ -212,15 +212,15 @@ class PostprocessYOLO(object):
         # descriptors:
         def sigmoid(value):
             """Return the sigmoid of the input."""
-            return 1.0 / (1.0 + math.exp(-value))
+            return 1.0 / (1.0 + np.exp(-value))
 
         def exponential(value):
             """Return the exponential of the input."""
-            return math.exp(value)
+            return np.exp(value)
 
         # Vectorized calculation of above two functions:
-        sigmoid_v = np.vectorize(sigmoid)
-        exponential_v = np.vectorize(exponential)
+        #sigmoid_v = np.vectorize(sigmoid)
+        #exponential_v = np.vectorize(exponential)
 
         grid_h, grid_w, _, _ = output_reshaped.shape
 
@@ -228,12 +228,12 @@ class PostprocessYOLO(object):
 
         # Reshape to N, height, width, num_anchors, box_params:
         anchors_tensor = np.reshape(anchors, [1, 1, len(anchors), 2])
-        box_xy = sigmoid_v(output_reshaped[..., :2])
-        box_wh = exponential_v(output_reshaped[..., 2:4]) * anchors_tensor
-        box_confidence = sigmoid_v(output_reshaped[..., 4])
+        box_xy = sigmoid(output_reshaped[..., :2])
+        box_wh = exponential(output_reshaped[..., 2:4]) * anchors_tensor
+        box_confidence = sigmoid(output_reshaped[..., 4])
 
         box_confidence = np.expand_dims(box_confidence, axis=-1)
-        box_class_probs = sigmoid_v(output_reshaped[..., 5:])
+        box_class_probs = sigmoid(output_reshaped[..., 5:])
 
         col = np.tile(np.arange(0, grid_w), grid_w).reshape(-1, grid_w)
         row = np.tile(np.arange(0, grid_h).reshape(-1, 1), grid_h)
